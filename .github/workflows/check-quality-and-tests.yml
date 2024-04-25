@@ -1,0 +1,67 @@
+name: Check quality, tests, and build
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  check-quality-tests-and-build:
+    name: Check quality, tests, and build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v5
+        with:
+          cache: pip
+          python-version: ${{ matrix.python-version }}
+
+      - name: "⚙️ Install dependencies"
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+
+      - name: Check requirements.txt is up to date
+        run: |
+          source venv/bin/activate
+
+          pip install .[all]
+          pip uninstall -y nm-vllm-utils
+          pip freeze > requirements.txt
+
+          if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+            echo "Files were changed by 'pip freeze'! Please run 'pip freeze' and commit changes."
+            git diff
+            exit 1
+          fi
+
+      - name: "🧹 Running style checks"
+        run: |
+          source venv/bin/activate
+
+          make style
+          if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+            echo "Files were changed by 'make style'! Please run 'make style' and commit changes."
+            git diff
+            exit 1
+          fi
+
+      - name: Run tests and build
+        run: |
+          source venv/bin/activate
+
+          coverage run -m pytest
+          coverage report
+
+          python -m build
