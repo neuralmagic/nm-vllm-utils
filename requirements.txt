@@ -30,7 +30,7 @@ mccabe==0.7.0
 mypy==1.8.0
 mypy-extensions==1.0.0
 nodeenv==1.8.0
-numpy==1.26.4
+numpy==1.24.4
 packaging==24.0
 pathspec==0.12.1
 pep8-naming==0.13.2
