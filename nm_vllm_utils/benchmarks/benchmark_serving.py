@@ -29,7 +29,7 @@ import time
 import warnings
 from dataclasses import dataclass
 from datetime import datetime
-from typing import AsyncGenerator, List, Tuple
+from typing import AsyncGenerator, Dict, List, Tuple
 
 import numpy as np
 from tqdm.asyncio import tqdm
@@ -249,7 +249,7 @@ async def benchmark(
     use_beam_search: bool,
     request_rate: float,
     disable_tqdm: bool,
-):
+) -> Dict:
     if backend in ASYNC_REQUEST_FUNCS:
         request_func = ASYNC_REQUEST_FUNCS.get(backend)
     else:
@@ -347,7 +347,7 @@ async def benchmark(
     return result
 
 
-def main(args: argparse.Namespace):
+def main(args: argparse.Namespace) -> None:
     print(args)
     random.seed(args.seed)
     np.random.seed(args.seed)
