@@ -32,11 +32,13 @@ from datetime import datetime
 from typing import AsyncGenerator, List, Tuple
 
 import numpy as np
-from backend_request_func import (ASYNC_REQUEST_FUNCS, RequestFuncInput,
-                                  RequestFuncOutput)
+from backend_request_func import (
+    ASYNC_REQUEST_FUNCS,
+    RequestFuncInput,
+    RequestFuncOutput,
+)
 from tqdm.asyncio import tqdm
 from transformers import PreTrainedTokenizerBase
-
 from vllm.transformers_utils.tokenizer import get_tokenizer
 
 
@@ -586,6 +588,40 @@ if __name__ == "__main__":
         default=None,
         help="Specify directory to save benchmark json results."
         "If not specified, results are saved in the current directory.",
+    )
+    parser.add_argument(
+        "--num-seconds",
+        type=int,
+        default=300,
+        help="Specify the number of seconds for which the benchmark will run.",
+    )
+    parser.add_argument(
+        "--host-url",
+        type=str,
+        default="localhost",
+        help="Specify the host URL of the server.",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        help="Specify the port number of the server.",
+    )
+    parser.add_argument(
+        "--task",
+        type=str,
+        default=None,
+        choices=["chat", "rag", "summarization"],
+        help="Specify the task type. If provided, a premade dataset relevant "
+             "to the task will be pulled in.",
+    )
+    parser.add_argument(
+        "--hourly-users",
+        type=int,
+        default=None,
+        help="Specify the number of hourly active users. "
+             "This needs to be provided if hourly active users information "
+             "is not provided through 'request-rate'."
     )
 
     args = parser.parse_args()
