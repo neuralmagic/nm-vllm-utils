@@ -69,12 +69,13 @@ def sample_sharegpt_requests(
     # Filter out the conversations with less than 2 turns.
     dataset = [data for data in dataset if len(data["conversations"]) >= 2]
     # Only keep the first two turns of each conversation.
-    dataset = [(data["conversations"][0]["value"],
-                data["conversations"][1]["value"]) for data in dataset]
+    dataset = [
+        (data["conversations"][0]["value"], data["conversations"][1]["value"])
+        for data in dataset
+    ]
 
     # some of these will be filtered out, so sample more than we need
-    sampled_indices = random.sample(range(len(dataset)),
-                                    int(num_requests * 1.2))
+    sampled_indices = random.sample(range(len(dataset)), int(num_requests * 1.2))
     dataset = [dataset[i] for i in sampled_indices]
 
     # Tokenize the prompts and completions.
@@ -124,24 +125,27 @@ def sample_sonnet_requests(
 
     # Tokenize the poem lines.
     poem_token_ids = tokenizer(poem_lines).input_ids
-    average_poem_len = sum(
-        len(token_ids) for token_ids in poem_token_ids) / len(poem_token_ids)
+    average_poem_len = sum(len(token_ids) for token_ids in poem_token_ids) / len(
+        poem_token_ids
+    )
 
     # Base prefix for all requests.
     base_prompt = "Pick as many lines as you can from these poem lines:\n"
-    base_message = [{
-        "role": "user",
-        "content": base_prompt,
-    }]
+    base_message = [
+        {
+            "role": "user",
+            "content": base_prompt,
+        }
+    ]
     base_prompt_formatted = tokenizer.apply_chat_template(
-        base_message, add_generation_prompt=True, tokenize=False)
+        base_message, add_generation_prompt=True, tokenize=False
+    )
     base_prompt_offset = len(tokenizer(base_prompt_formatted).input_ids)
 
     assert (
         input_len > base_prompt_offset
     ), f"Please set 'args.sonnet-input-len' higher than {base_prompt_offset}."
-    num_input_lines = round(
-        (input_len - base_prompt_offset) / average_poem_len)
+    num_input_lines = round((input_len - base_prompt_offset) / average_poem_len)
 
     # First approximately `prefix_len` number of tokens in the
     # prompt are fixed poem lines.
@@ -149,16 +153,15 @@ def sample_sonnet_requests(
         prefix_len > base_prompt_offset
     ), f"Please set 'args.sonnet-prefix-len' higher than {base_prompt_offset}."
 
-    num_prefix_lines = round(
-        (prefix_len - base_prompt_offset) / average_poem_len)
+    num_prefix_lines = round((prefix_len - base_prompt_offset) / average_poem_len)
     prefix_lines = poem_lines[:num_prefix_lines]
 
     # Sample the rest of lines per request.
     sampled_requests: List[Tuple[str, int, int]] = []
     for _ in range(num_requests):
         sampled_lines = "".join(
-            prefix_lines +
-            random.sample(poem_lines, num_input_lines - num_prefix_lines))
+            prefix_lines + random.sample(poem_lines, num_input_lines - num_prefix_lines)
+        )
 
         prompt = f"{base_prompt}{sampled_lines}"
         message = [
@@ -168,10 +171,10 @@ def sample_sonnet_requests(
             },
         ]
         prompt_formatted = tokenizer.apply_chat_template(
-            message, add_generation_prompt=True, tokenize=False)
+            message, add_generation_prompt=True, tokenize=False
+        )
         prompt_len = len(tokenizer(prompt_formatted).input_ids)
-        sampled_requests.append(
-            (prompt, prompt_formatted, prompt_len, output_len))
+        sampled_requests.append((prompt, prompt_formatted, prompt_len, output_len))
 
     return sampled_requests
 
@@ -210,8 +213,7 @@ def calculate_metrics(
             actual_output_lens.append(output_len)
             total_input += input_requests[i][1]
             if output_len > 1:
-                tpots.append(
-                    (outputs[i].latency - outputs[i].ttft) / (output_len - 1))
+                tpots.append((outputs[i].latency - outputs[i].ttft) / (output_len - 1))
             ttfts.append(outputs[i].ttft)
             completed += 1
         else:
@@ -224,8 +226,8 @@ def calculate_metrics(
         request_throughput=completed / dur_s,
         input_throughput=total_input / dur_s,
         output_throughput=sum(actual_output_lens) / dur_s,
-        mean_ttft_ms=np.mean(ttfts or 0) *
-        1000,  # ttfts is empty if streaming is not supported by backend
+        mean_ttft_ms=np.mean(ttfts or 0)
+        * 1000,  # ttfts is empty if streaming is not supported by backend
         median_ttft_ms=np.median(ttfts or 0) * 1000,
         p99_ttft_ms=np.percentile(ttfts or 0, 99) * 1000,
         mean_tpot_ms=np.mean(tpots) * 1000,
@@ -271,8 +273,9 @@ async def benchmark(
         )
         tasks.append(
             asyncio.create_task(
-                request_func(request_func_input=request_func_input,
-                             pbar=pbar)))
+                request_func(request_func_input=request_func_input, pbar=pbar)
+            )
+        )
     outputs: List[RequestFuncOutput] = await asyncio.gather(*tasks)
 
     if not disable_tqdm:
@@ -287,30 +290,35 @@ async def benchmark(
         tokenizer=tokenizer,
     )
 
-    print("{s:{c}^{n}}".format(s=' Serving Benchmark Result ', n=50, c='='))
+    print("{s:{c}^{n}}".format(s=" Serving Benchmark Result ", n=50, c="="))
     print("{:<40} {:<10}".format("Successful requests:", metrics.completed))
-    print("{:<40} {:<10.2f}".format("Benchmark duration (s):",
-                                    benchmark_duration))
+    print("{:<40} {:<10.2f}".format("Benchmark duration (s):", benchmark_duration))
     print("{:<40} {:<10}".format("Total input tokens:", metrics.total_input))
-    print("{:<40} {:<10}".format("Total generated tokens:",
-                                 metrics.total_output))
-    print("{:<40} {:<10.2f}".format("Request throughput (req/s):",
-                                    metrics.request_throughput))
-    print("{:<40} {:<10.2f}".format("Input token throughput (tok/s):",
-                                    metrics.input_throughput))
-    print("{:<40} {:<10.2f}".format("Output token throughput (tok/s):",
-                                    metrics.output_throughput))
-    print("{s:{c}^{n}}".format(s='Time to First Token', n=50, c='-'))
+    print("{:<40} {:<10}".format("Total generated tokens:", metrics.total_output))
+    print(
+        "{:<40} {:<10.2f}".format(
+            "Request throughput (req/s):", metrics.request_throughput
+        )
+    )
+    print(
+        "{:<40} {:<10.2f}".format(
+            "Input token throughput (tok/s):", metrics.input_throughput
+        )
+    )
+    print(
+        "{:<40} {:<10.2f}".format(
+            "Output token throughput (tok/s):", metrics.output_throughput
+        )
+    )
+    print("{s:{c}^{n}}".format(s="Time to First Token", n=50, c="-"))
     print("{:<40} {:<10.2f}".format("Mean TTFT (ms):", metrics.mean_ttft_ms))
-    print("{:<40} {:<10.2f}".format("Median TTFT (ms):",
-                                    metrics.median_ttft_ms))
+    print("{:<40} {:<10.2f}".format("Median TTFT (ms):", metrics.median_ttft_ms))
     print("{:<40} {:<10.2f}".format("P99 TTFT (ms):", metrics.p99_ttft_ms))
-    print("{s:{c}^{n}}".format(s='Time per Output Token (excl. 1st token)',
-                               n=50,
-                               c='-'))
+    print(
+        "{s:{c}^{n}}".format(s="Time per Output Token (excl. 1st token)", n=50, c="-")
+    )
     print("{:<40} {:<10.2f}".format("Mean TPOT (ms):", metrics.mean_tpot_ms))
-    print("{:<40} {:<10.2f}".format("Median TPOT (ms):",
-                                    metrics.median_tpot_ms))
+    print("{:<40} {:<10.2f}".format("Median TPOT (ms):", metrics.median_tpot_ms))
     print("{:<40} {:<10.2f}".format("P99 TPOT (ms):", metrics.p99_tpot_ms))
     print("=" * 50)
 
@@ -352,15 +360,15 @@ def main(args: argparse.Namespace):
     else:
         api_url = f"http://{args.host}:{args.port}{args.endpoint}"
 
-    tokenizer = get_tokenizer(tokenizer_id,
-                              trust_remote_code=args.trust_remote_code)
+    tokenizer = get_tokenizer(tokenizer_id, trust_remote_code=args.trust_remote_code)
 
     if args.dataset is not None:
         warnings.warn(
             "The '--dataset' argument will be deprecated in the next "
             "release. Please use '--dataset-name' and "
             "'--dataset-path' in the future runs.",
-            stacklevel=2)
+            stacklevel=2,
+        )
         input_requests = sample_sharegpt_requests(
             dataset_path=args.dataset,
             num_requests=args.num_prompts,
@@ -385,9 +393,10 @@ def main(args: argparse.Namespace):
                 prefix_len=args.sonnet_prefix_len,
                 tokenizer=tokenizer,
             )
-            input_requests = [(prompt, prompt_len, output_len)
-                              for prompt, prompt_formatted, prompt_len,
-                              output_len in input_requests]
+            input_requests = [
+                (prompt, prompt_len, output_len)
+                for prompt, prompt_formatted, prompt_len, output_len in input_requests
+            ]
         else:
             assert (
                 tokenizer.chat_template or tokenizer.default_chat_template
@@ -400,9 +409,10 @@ def main(args: argparse.Namespace):
                 prefix_len=args.sonnet_prefix_len,
                 tokenizer=tokenizer,
             )
-            input_requests = [(prompt_formatted, prompt_len, output_len)
-                              for prompt, prompt_formatted, prompt_len,
-                              output_len in input_requests]
+            input_requests = [
+                (prompt_formatted, prompt_len, output_len)
+                for prompt, prompt_formatted, prompt_len, output_len in input_requests
+            ]
 
     else:
         raise ValueError(f"Unknown dataset: {args.dataset_name}")
@@ -418,7 +428,8 @@ def main(args: argparse.Namespace):
             use_beam_search=args.use_beam_search,
             request_rate=args.request_rate,
             disable_tqdm=args.disable_tqdm,
-        ))
+        )
+    )
 
     # Save config and results to json
     if args.save_result:
@@ -447,14 +458,15 @@ def main(args: argparse.Namespace):
 
         # Traffic
         result_json["request_rate"] = (
-            args.request_rate if args.request_rate < float("inf") else "inf")
+            args.request_rate if args.request_rate < float("inf") else "inf"
+        )
 
         # Merge with benchmark result
         result_json = {**result_json, **benchmark_result}
 
         # Save to file
         base_model_id = model_id.split("/")[-1]
-        file_name = f"{backend}-{args.request_rate}qps-{base_model_id}-{current_dt}.json"  #noqa
+        file_name = f"{backend}-{args.request_rate}qps-{base_model_id}-{current_dt}.json"  # noqa
         if args.result_dir:
             file_name = os.path.join(args.result_dir, file_name)
         with open(file_name, "w") as outfile:
@@ -463,7 +475,8 @@ def main(args: argparse.Namespace):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Benchmark the online serving throughput.")
+        description="Benchmark the online serving throughput."
+    )
     parser.add_argument(
         "--backend",
         type=str,
@@ -488,8 +501,7 @@ if __name__ == "__main__":
         "--dataset",
         type=str,
         default=None,
-        help="Path to the ShareGPT dataset, will be deprecated in the "
-        "next release.",
+        help="Path to the ShareGPT dataset, will be deprecated in the " "next release.",
     )
     parser.add_argument(
         "--dataset-name",
@@ -498,10 +510,9 @@ if __name__ == "__main__":
         choices=["sharegpt", "sonnet"],
         help="Name of the dataset to benchmark on.",
     )
-    parser.add_argument("--dataset-path",
-                        type=str,
-                        default=None,
-                        help="Path to the dataset.")
+    parser.add_argument(
+        "--dataset-path", type=str, default=None, help="Path to the dataset."
+    )
     parser.add_argument(
         "--model",
         type=str,
@@ -511,15 +522,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--tokenizer",
         type=str,
-        help=
-        "Name or path of the tokenizer, if not using the default tokenizer.",
+        help="Name or path of the tokenizer, if not using the default tokenizer.",
     )
     parser.add_argument(
         "--best-of",
         type=int,
         default=1,
-        help="Generates `best_of` sequences per prompt and "
-        "returns the best one.",
+        help="Generates `best_of` sequences per prompt and " "returns the best one.",
     )
     parser.add_argument("--use-beam-search", action="store_true")
     parser.add_argument(
@@ -532,22 +541,19 @@ if __name__ == "__main__":
         "--sonnet-input-len",
         type=int,
         default=550,
-        help=
-        "Number of input tokens per request, used only for sonnet dataset.",
+        help="Number of input tokens per request, used only for sonnet dataset.",
     )
     parser.add_argument(
         "--sonnet-output-len",
         type=int,
         default=150,
-        help=
-        "Number of output tokens per request, used only for sonnet dataset.",
+        help="Number of output tokens per request, used only for sonnet dataset.",
     )
     parser.add_argument(
         "--sonnet-prefix-len",
         type=int,
         default=200,
-        help=
-        "Number of prefix tokens per request, used only for sonnet dataset.",
+        help="Number of prefix tokens per request, used only for sonnet dataset.",
     )
     parser.add_argument(
         "--request-rate",
@@ -613,15 +619,15 @@ if __name__ == "__main__":
         default=None,
         choices=["chat", "rag", "summarization"],
         help="Specify the task type. If provided, a premade dataset relevant "
-             "to the task will be pulled in.",
+        "to the task will be pulled in.",
     )
     parser.add_argument(
         "--hourly-users",
         type=int,
         default=None,
         help="Specify the number of hourly active users. "
-             "This needs to be provided if hourly active users information "
-             "is not provided through 'request-rate'."
+        "This needs to be provided if hourly active users information "
+        "is not provided through 'request-rate'.",
     )
 
     args = parser.parse_args()
