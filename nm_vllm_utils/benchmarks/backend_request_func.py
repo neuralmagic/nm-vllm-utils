@@ -13,6 +13,7 @@ from typing import List, Optional
 import aiohttp
 from tqdm.asyncio import tqdm
 
+
 AIOHTTP_TIMEOUT = aiohttp.ClientTimeout(total=6 * 60 * 60)
 
 
@@ -33,8 +34,7 @@ class RequestFuncOutput:
     success: bool = False
     latency: float = 0.0
     ttft: float = 0.0  # Time to first token
-    itl: List[float] = field(
-        default_factory=list)  # List of inter-token latencies
+    itl: List[float] = field(default_factory=list)  # List of inter-token latencies
     prompt_len: int = 0
     error: str = ""
 
@@ -73,8 +73,7 @@ async def async_request_tgi(
                         if not chunk_bytes:
                             continue
 
-                        chunk = remove_prefix(chunk_bytes.decode("utf-8"),
-                                              "data:")
+                        chunk = remove_prefix(chunk_bytes.decode("utf-8"), "data:")
 
                         data = json.loads(chunk)
                         timestamp = time.perf_counter()
@@ -85,8 +84,7 @@ async def async_request_tgi(
 
                         # Decoding phase
                         else:
-                            output.itl.append(timestamp -
-                                              most_recent_timestamp)
+                            output.itl.append(timestamp - most_recent_timestamp)
 
                         most_recent_timestamp = timestamp
 
@@ -135,8 +133,7 @@ async def async_request_trt_llm(
                         if not chunk_bytes:
                             continue
 
-                        chunk = remove_prefix(chunk_bytes.decode("utf-8"),
-                                              "data:")
+                        chunk = remove_prefix(chunk_bytes.decode("utf-8"), "data:")
 
                         data = json.loads(chunk)
                         timestamp = time.perf_counter()
@@ -147,8 +144,7 @@ async def async_request_trt_llm(
 
                         # Decoding phase
                         else:
-                            output.itl.append(timestamp -
-                                              most_recent_timestamp)
+                            output.itl.append(timestamp - most_recent_timestamp)
 
                         most_recent_timestamp = timestamp
 
@@ -193,8 +189,9 @@ async def async_request_deepspeed_mii(
 
         st = time.perf_counter()
         try:
-            async with session.post(url=request_func_input.api_url,
-                                    json=payload) as response:
+            async with session.post(
+                url=request_func_input.api_url, json=payload
+            ) as response:
                 if response.status == 200:
                     parsed_resp = await response.json()
                     output.latency = time.perf_counter() - st
@@ -232,9 +229,7 @@ async def async_request_openai_completions(
             "max_tokens": request_func_input.output_len,
             "stream": True,
         }
-        headers = {
-            "Authorization": f"Bearer {os.environ.get('OPENAI_API_KEY')}"
-        }
+        headers = {"Authorization": f"Bearer {os.environ.get('OPENAI_API_KEY')}"}
 
         output = RequestFuncOutput()
         output.prompt_len = request_func_input.prompt_len
@@ -244,16 +239,16 @@ async def async_request_openai_completions(
         st = time.perf_counter()
         most_recent_timestamp = st
         try:
-            async with session.post(url=api_url, json=payload,
-                                    headers=headers) as response:
+            async with session.post(
+                url=api_url, json=payload, headers=headers
+            ) as response:
                 if response.status == 200:
                     async for chunk_bytes in response.content:
                         chunk_bytes = chunk_bytes.strip()
                         if not chunk_bytes:
                             continue
 
-                        chunk = remove_prefix(chunk_bytes.decode("utf-8"),
-                                              "data: ")
+                        chunk = remove_prefix(chunk_bytes.decode("utf-8"), "data: ")
                         if chunk == "[DONE]":
                             latency = time.perf_counter() - st
                         else:
@@ -271,8 +266,7 @@ async def async_request_openai_completions(
                                 # usage summary response without a token so we
                                 # do not want to include as inter-token-latency
                                 elif data.get("usage", None) is None:
-                                    output.itl.append(timestamp -
-                                                      most_recent_timestamp)
+                                    output.itl.append(timestamp - most_recent_timestamp)
 
                                 most_recent_timestamp = timestamp
                                 generated_text += data["choices"][0]["text"]
@@ -326,16 +320,16 @@ async def async_request_openai_chat_completions(
         st = time.perf_counter()
         most_recent_timestamp = st
         try:
-            async with session.post(url=api_url, json=payload,
-                                    headers=headers) as response:
+            async with session.post(
+                url=api_url, json=payload, headers=headers
+            ) as response:
                 if response.status == 200:
                     async for chunk_bytes in response.content:
                         chunk_bytes = chunk_bytes.strip()
                         if not chunk_bytes:
                             continue
 
-                        chunk = remove_prefix(chunk_bytes.decode("utf-8"),
-                                              "data: ")
+                        chunk = remove_prefix(chunk_bytes.decode("utf-8"), "data: ")
                         if chunk == "[DONE]":
                             latency = time.perf_counter() - st
                         else:
@@ -351,8 +345,7 @@ async def async_request_openai_chat_completions(
 
                                 # Decoding phase
                                 else:
-                                    output.itl.append(timestamp -
-                                                      most_recent_timestamp)
+                                    output.itl.append(timestamp - most_recent_timestamp)
 
                                 generated_text += delta["content"]
 
@@ -378,7 +371,7 @@ async def async_request_openai_chat_completions(
 # introduced in Python 3.9
 def remove_prefix(text: str, prefix: str) -> str:
     if text.startswith(prefix):
-        return text[len(prefix):]
+        return text[len(prefix) :]
     return text
 
 
