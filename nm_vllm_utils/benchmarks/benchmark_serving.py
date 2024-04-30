@@ -158,7 +158,7 @@ def sample_sonnet_requests(
     prefix_lines = poem_lines[:num_prefix_lines]
 
     # Sample the rest of lines per request.
-    sampled_requests: List[Tuple[str, int, int]] = []
+    sampled_requests: List[Tuple[str, str, int, int]] = []
     for _ in range(num_requests):
         sampled_lines = "".join(
             prefix_lines + random.sample(poem_lines, num_input_lines - num_prefix_lines)
@@ -184,8 +184,7 @@ async def get_request(
     input_requests: List[Tuple[str, int, int]],
     request_rate: float,
 ) -> AsyncGenerator[Tuple[str, int, int], None]:
-    input_requests = iter(input_requests)
-    for request in input_requests:
+    for request in iter(input_requests):
         yield request
 
         if request_rate == float("inf"):
@@ -279,7 +278,7 @@ async def benchmark(
         )
     outputs: List[RequestFuncOutput] = await asyncio.gather(*tasks)
 
-    if not disable_tqdm:
+    if not disable_tqdm and pbar:
         pbar.close()
 
     benchmark_duration = time.perf_counter() - benchmark_start_time
@@ -386,7 +385,7 @@ def main(args: argparse.Namespace) -> None:
     elif args.dataset_name == "sonnet":
         # Do not format the prompt, pass to message directly
         if args.backend == "openai-chat":
-            input_requests = sample_sonnet_requests(
+            input_request = sample_sonnet_requests(
                 dataset_path=args.dataset_path,
                 num_requests=args.num_prompts,
                 input_len=args.sonnet_input_len,
@@ -396,13 +395,13 @@ def main(args: argparse.Namespace) -> None:
             )
             input_requests = [
                 (prompt, prompt_len, output_len)
-                for prompt, prompt_formatted, prompt_len, output_len in input_requests
+                for prompt, prompt_formatted, prompt_len, output_len in input_request
             ]
         else:
             assert (
                 tokenizer.chat_template or tokenizer.default_chat_template
             ), "Tokenizer/model must have chat template for sonnet dataset."
-            input_requests = sample_sonnet_requests(
+            input_request = sample_sonnet_requests(
                 dataset_path=args.dataset_path,
                 num_requests=args.num_prompts,
                 input_len=args.sonnet_input_len,
@@ -412,7 +411,7 @@ def main(args: argparse.Namespace) -> None:
             )
             input_requests = [
                 (prompt_formatted, prompt_len, output_len)
-                for prompt, prompt_formatted, prompt_len, output_len in input_requests
+                for prompt, prompt_formatted, prompt_len, output_len in input_request
             ]
 
     else:
