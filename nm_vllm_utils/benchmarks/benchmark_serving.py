@@ -272,11 +272,12 @@ async def benchmark(
             best_of=best_of,
             use_beam_search=use_beam_search,
         )
-        tasks.append(
-            asyncio.create_task(
-                request_func(request_func_input=request_func_input, pbar=pbar)
+        if request_func:
+            tasks.append(
+                asyncio.create_task(
+                    request_func(request_func_input=request_func_input, pbar=pbar)
+                )
             )
-        )
     outputs: List[RequestFuncOutput] = await asyncio.gather(*tasks)
 
     if not disable_tqdm and pbar:
