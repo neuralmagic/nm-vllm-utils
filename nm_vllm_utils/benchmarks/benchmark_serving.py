@@ -466,7 +466,7 @@ def main(args: argparse.Namespace) -> None:
         file_name = f"{backend}-{args.request_rate}qps-{base_model_id}-{current_dt}.json"  # noqa
         if args.result_dir:
             file_name = os.path.join(args.result_dir, file_name)
-        with open(file_name, "w", newline='') as outfile:
+        with open(file_name, "w", newline="") as outfile:
             writer = csv.DictWriter(outfile, fieldnames=result_json.keys())
             writer.writeheader()
             writer.writerow(result_json)
