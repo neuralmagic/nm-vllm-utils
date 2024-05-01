@@ -37,6 +37,7 @@ class RequestFuncOutput:
     itl: List[float] = field(default_factory=list)  # List of inter-token latencies
     prompt_len: int = 0
     error: str = ""
+    processing_time: float = 0.0
 
 
 async def async_request_tgi(
@@ -95,6 +96,8 @@ async def async_request_tgi(
             output.success = False
             exc_info = sys.exc_info()
             output.error = "".join(traceback.format_exception(*exc_info))
+
+        output.processing_time = time.perf_counter() - st
 
         if pbar:
             pbar.update(1)
@@ -160,6 +163,8 @@ async def async_request_trt_llm(
             exc_info = sys.exc_info()
             output.error = "".join(traceback.format_exception(*exc_info))
 
+        output.processing_time = time.perf_counter() - st
+
         if pbar:
             pbar.update(1)
         return output
@@ -204,6 +209,8 @@ async def async_request_deepspeed_mii(
             output.success = False
             exc_info = sys.exc_info()
             output.error = "".join(traceback.format_exception(*exc_info))
+
+        output.processing_time = time.perf_counter() - st
 
         if pbar:
             pbar.update(1)
@@ -278,6 +285,8 @@ async def async_request_openai_completions(
             output.success = False
             exc_info = sys.exc_info()
             output.error = "".join(traceback.format_exception(*exc_info))
+
+    output.processing_time = time.perf_counter() - st
 
     if pbar:
         pbar.update(1)
@@ -361,6 +370,8 @@ async def async_request_openai_chat_completions(
             output.success = False
             exc_info = sys.exc_info()
             output.error = "".join(traceback.format_exception(*exc_info))
+
+    output.processing_time = time.perf_counter() - st
 
     if pbar:
         pbar.update(1)

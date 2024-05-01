@@ -22,6 +22,7 @@ On the client side, run:
 """
 import argparse
 import asyncio
+import csv
 import json
 import os
 import random
@@ -53,9 +54,11 @@ class BenchmarkMetrics:
     output_throughput: float
     mean_ttft_ms: float
     median_ttft_ms: float
+    p90_ttft_ms: float
     p99_ttft_ms: float
     mean_tpot_ms: float
     median_tpot_ms: float
+    p90_tpot_ms: float
     p99_tpot_ms: float
 
 
@@ -230,9 +233,11 @@ def calculate_metrics(
             np.mean(ttfts or 0) * 1000
         ),  # ttfts is empty if streaming is not supported by backend
         median_ttft_ms=float(np.median(ttfts or 0) * 1000),
+        p90_ttft_ms=float(np.percentile(ttfts or 0, 90) * 1000),
         p99_ttft_ms=float(np.percentile(ttfts or 0, 99) * 1000),
         mean_tpot_ms=float(np.mean(tpots) * 1000),
         median_tpot_ms=float(np.median(tpots) * 1000),
+        p90_tpot_ms=float(np.percentile(tpots, 90) * 1000),
         p99_tpot_ms=float(np.percentile(tpots, 99) * 1000),
     )
 
@@ -296,17 +301,17 @@ async def benchmark(
         f"Time to First Token (TTFT) - "
         f"mean: {metrics.mean_ttft_ms}, "
         f"p50: {metrics.median_ttft_ms}, "
-        f"p90: , "
+        f"p90: {metrics.p90_ttft_ms}, "
         f"p99: {metrics.p99_ttft_ms}"
     )
     print(
         f"Time Per Output Token (TPOT) - "
         f"mean: {metrics.mean_tpot_ms}, "
         f"p50 : {metrics.median_tpot_ms}, "
-        f"p90: , "
+        f"p90: {metrics.p90_tpot_ms}, "
         f"p99: {metrics.p99_tpot_ms}"
     )
-    print(f"E2E Latency: TTFT + TPOT x #output-tokens")
+    print(f"E2E Latency:  {[output.processing_time for output in outputs]}")
     print(f"Throughput: {metrics.output_throughput}")
     print(f"Request Prompt Length - {[output.prompt_len for output in outputs]}")
     print(f"Request Generation Length - {actual_output_lens}")
@@ -322,9 +327,11 @@ async def benchmark(
         "output_throughput": metrics.output_throughput,
         "mean_ttft_ms": metrics.mean_ttft_ms,
         "median_ttft_ms": metrics.median_ttft_ms,
+        "p90_ttft_ms": metrics.p90_ttft_ms,
         "p99_ttft_ms": metrics.p99_ttft_ms,
         "mean_tpot_ms": metrics.mean_tpot_ms,
         "median_tpot_ms": metrics.median_tpot_ms,
+        "p90_tpot_ms": metrics.p90_tpot_ms,
         "p99_tpot_ms": metrics.p99_tpot_ms,
         "input_lens": [output.prompt_len for output in outputs],
         "output_lens": actual_output_lens,
@@ -459,8 +466,10 @@ def main(args: argparse.Namespace) -> None:
         file_name = f"{backend}-{args.request_rate}qps-{base_model_id}-{current_dt}.json"  # noqa
         if args.result_dir:
             file_name = os.path.join(args.result_dir, file_name)
-        with open(file_name, "w") as outfile:
-            json.dump(result_json, outfile)
+        with open(file_name, "w", newline='') as outfile:
+            writer = csv.DictWriter(outfile, fieldnames=result_json.keys())
+            writer.writeheader()
+            writer.writerow(result_json)
 
 
 if __name__ == "__main__":
@@ -590,12 +599,6 @@ if __name__ == "__main__":
         type=int,
         default=300,
         help="Specify the number of seconds for which the benchmark will run.",
-    )
-    parser.add_argument(
-        "--host-url",
-        type=str,
-        default="localhost",
-        help="Specify the host URL of the server.",
     )
     parser.add_argument(
         "--port",
