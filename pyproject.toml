@@ -93,7 +93,12 @@ addopts = "-m 'not integration_test'"
 markers = ["integration_test: marks tests as integration tests (deselect with '-m \"not integration_test\")"]
 
 [tool.setuptools.packages.find]
-where = ["nm_vllm_utils"]
+include = [
+  "nm_vllm_utils",
+  "nm_vllm_utils.benchmarks",
+]
+where = ["."]
+
 
 [tool.setuptools_scm]
 version_file = "nm_vllm_utils/__version__.py"
