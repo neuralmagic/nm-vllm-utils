@@ -463,7 +463,7 @@ def main(args: argparse.Namespace) -> None:
 
         # Save to file
         base_model_id = model_id.split("/")[-1]
-        file_name = f"{backend}-{args.request_rate}qps-{base_model_id}-{current_dt}.json"  # noqa
+        file_name = f"{backend}-{args.request_rate}qps-{base_model_id}-{current_dt}.csv"  # noqa
         if args.result_dir:
             file_name = os.path.join(args.result_dir, file_name)
         with open(file_name, "w", newline="") as outfile:
