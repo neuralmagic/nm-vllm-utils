@@ -601,12 +601,6 @@ if __name__ == "__main__":
         help="Specify the number of seconds for which the benchmark will run.",
     )
     parser.add_argument(
-        "--port",
-        type=int,
-        default=8000,
-        help="Specify the port number of the server.",
-    )
-    parser.add_argument(
         "--task",
         type=str,
         default=None,
