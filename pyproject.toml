@@ -9,7 +9,6 @@ build-backend = "setuptools.build_meta"
 authors = [
   {email = "support@neuralmagic.com", name = "Neuralmagic, Inc."},
 ]
-dependencies = []
 description = "Various utilities for use with nm-vllm"
 dynamic = ["version"]
 license = {text = "Apache"}
@@ -42,6 +41,9 @@ dev = [
   "safety==2.3.4",
   "wheel>=0.36.2",
 ]
+
+[project.dependencies]
+aiohttp = "==3.9.5"
 
 [project.urls]
 Homepage = "https://github.com/neuralmagic/nm-vllm-utils"
