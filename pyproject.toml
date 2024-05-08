@@ -13,6 +13,8 @@ description = "Various utilities for use with nm-vllm"
 dynamic = ["version"]
 dependencies = [
   "aiohttp~=3.9.5",
+  "numpy~=1.24.4",
+  "typing-extensions~=4.11.0",
 ]
 license = {text = "Apache"}
 name = "nm-vllm-utils"
