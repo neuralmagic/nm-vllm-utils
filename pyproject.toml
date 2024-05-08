@@ -11,6 +11,9 @@ authors = [
 ]
 description = "Various utilities for use with nm-vllm"
 dynamic = ["version"]
+dependencies = [
+  "aiohttp~=3.9.5",
+]
 license = {text = "Apache"}
 name = "nm-vllm-utils"
 readme = "README.md"
@@ -41,9 +44,6 @@ dev = [
   "safety==2.3.4",
   "wheel>=0.36.2",
 ]
-
-[project.dependencies]
-aiohttp = "==3.9.5"
 
 [project.urls]
 Homepage = "https://github.com/neuralmagic/nm-vllm-utils"
