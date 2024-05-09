@@ -297,6 +297,58 @@ async def benchmark(
         tokenizer=tokenizer,
     )
 
+    print("\033[1mWorkload report: \033[0m \n")
+    print(f"\033[1mServer details: \033[0m Host URL: \033[4mlocalhost\033[0m")
+    print(f"\033[1mModel details: \033[0m Name: ")
+    print(f"\033[1mTask details: \033[0m Dataset:    \n")
+
+    print(
+        "\033[1mRequest Details: \033[0m                      \033[4mRequest Prompt Length (toks)\033[0m           "
+        " \033[4mRequest Generation Length (toks)\033[0m"
+    )
+    print(
+        f"RPS = 5.0                              Mean:                                   Mean: "
+    )
+    print(
+        f"Hourly Active Users: 1000              p50:                                    p50:"
+    )
+    print(
+        f"Total Requests: 100                    p90:                                    p90:"
+    )
+    print(
+        f"Completed Requests: 100                p95:                                    p95:"
+    )
+    print(
+        f"Successfully Requests: 100             p99:                                    p99:"
+    )
+    print(f"Failed Requests: 100 \n")
+
+    print("\033[1mSummary Workload Metrics: \033[0m \n")
+    print(
+        "\033[4mE2E Latency (s)\033[0m     \033[4mThroughput (toks/s)\033[0m "
+        "  \033[4mTime To First Token (TTFT) (ms)\033[0m     \033[4mTime Per Output Token (TPOT) (ms)\033[0m"
+    )
+    print(
+        f"Mean:               Mean:                 Mean:                               Mean:"
+    )
+    print(
+        f"p50:                p50:                  p50:                                p50:"
+    )
+    print(
+        f"p90:                                      p90:                                p90:"
+    )
+    print(
+        f"p95:                                      p95:                                p95:"
+    )
+    print(
+        f"p99:                                      p99:                                p99:"
+    )
+
+    print(
+        "\n \033[1mTo further inspect the metrics from this workload, you may view "
+        "the generated .csv files in the Workload_Output local directory.\033[0m"
+    )
+
     print(
         f"Time to First Token (TTFT) - "
         f"mean: {metrics.mean_ttft_ms}, "
