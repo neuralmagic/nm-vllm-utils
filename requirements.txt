@@ -143,7 +143,7 @@ uvicorn==0.29.0
 uvloop==0.19.0
 virtualenv==20.26.0
 vllm==0.4.2
-vllm_nccl_cu12==2.18.1.0.4.0
+vllm_nccl_cu12==2.18.1.0.3.0
 watchdog==4.0.0
 watchfiles==0.21.0
 websockets==12.0
