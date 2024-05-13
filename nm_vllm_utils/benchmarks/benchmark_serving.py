@@ -247,6 +247,7 @@ def calculate_metrics(
 
 
 async def benchmark(
+    args: argparse.Namespace,
     backend: str,
     api_url: str,
     model_id: str,
@@ -300,7 +301,7 @@ async def benchmark(
     )
 
     print("\033[1mWorkload report: \033[0m \n")
-    print(f"\033[1mServer details: \033[0m Host URL: \033[4mlocalhost\033[0m")
+    print(f"\033[1mServer details: \033[0m Host URL: \033[4m{args.host}\033[0m  Port: {args.port}")
     print(f"\033[1mModel details: \033[0m Name: ")
     print(f"\033[1mTask details: \033[0m Dataset:    \n")
 
@@ -470,6 +471,7 @@ def main(args: argparse.Namespace) -> None:
 
     benchmark_result = asyncio.run(
         benchmark(
+            args=args,
             backend=backend,
             api_url=api_url,
             model_id=model_id,
