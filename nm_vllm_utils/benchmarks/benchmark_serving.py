@@ -333,16 +333,16 @@ async def benchmark(
         "\033[1mRequest Details: \033[0m                      \033[4mRequest Prompt Length (toks)\033[0m           "
         " \033[4mRequest Generation Length (toks)\033[0m")
     print(
-        f"RPS = 5.0                              Mean: {mean_request_prompt_length}                                  Mean: {mean_request_generation_length}")
+        f"RPS =                               Mean: {mean_request_prompt_length}                                  Mean: {mean_request_generation_length}")
     print(
-        f"Hourly Active Users: 1000              p50: {median_request_prompt}                                    p50: {median_request_generation}")
+        f"Hourly Active Users: {args.hourly_users}              p50: {median_request_prompt}                                    p50: {median_request_generation}")
     print(
-        f"Total Requests: 100                    p90: {p90_request_prompt}                                   p90: {p90_request_generation}")
+        f"Total Requests: {len(outputs)}                    p90: {p90_request_prompt}                                   p90: {p90_request_generation}")
     print(
-        f"Completed Requests: 100                p95: {p95_request_prompt}                                   p95: {p95_request_generation}")
+        f"Completed Requests: {metrics.completed}                p95: {p95_request_prompt}                                   p95: {p95_request_generation}")
     print(
-        f"Successfully Requests: 100             p99: {p99_request_prompt}                                   p99: {p99_request_generation}")
-    print(f"Failed Requests: 100 \n")
+        f"Successfully Requests: {metrics.completed}             p99: {p99_request_prompt}                                   p99: {p99_request_generation}")
+    print(f"Failed Requests: {len(outputs) - metrics.completed} \n")
 
     print("\033[1mSummary Workload Metrics: \033[0m \n")
     print("\033[4mE2E Latency (s)\033[0m     \033[4mThroughput (toks/s)\033[0m "
