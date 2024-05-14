@@ -327,13 +327,13 @@ async def benchmark(
     print("\033[1mWorkload report: \033[0m \n")
     print(f"\033[1mServer details: \033[0m Host URL: \033[4m{args.host}\033[0m  Port: {args.port} IP Address: Route: {args.endpoint} Request Payload Template: Benchmark Duration (s): {benchmark_duration}")
     print(f"\033[1mModel details: \033[0m Name: {args.model}")
-    print(f"\033[1mTask details: \033[0m Dataset: {args.dataset} Task: {args.task} Median Prefill Time (ms): Median Decode Time (ms) \n")
+    print(f"\033[1mTask details: \033[0m Dataset: {args.dataset} Task: {args.task} Median Prefill Time {metrics.median_ttft_ms} (ms) Median Decode Time {metrics.median_tpot_ms} (ms) \n")
 
     print(
         "\033[1mRequest Details: \033[0m                      \033[4mRequest Prompt Length (toks)\033[0m           "
         " \033[4mRequest Generation Length (toks)\033[0m")
     print(
-        f"RPS =                               Mean: {mean_request_prompt_length}                                  Mean: {mean_request_generation_length}")
+        f"RPS = {len(outputs)/benchmark_duration}                              Mean: {mean_request_prompt_length}                                  Mean: {mean_request_generation_length}")
     print(
         f"Hourly Active Users: {args.hourly_users}              p50: {median_request_prompt}                                    p50: {median_request_generation}")
     print(
