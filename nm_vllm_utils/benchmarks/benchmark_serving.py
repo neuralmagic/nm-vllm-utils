@@ -57,10 +57,12 @@ class BenchmarkMetrics:
     mean_ttft_ms: float
     median_ttft_ms: float
     p90_ttft_ms: float
+    p95_ttft_ms: float
     p99_ttft_ms: float
     mean_tpot_ms: float
     median_tpot_ms: float
     p90_tpot_ms: float
+    p95_tpot_ms: float
     p99_tpot_ms: float
 
 
@@ -236,10 +238,12 @@ def calculate_metrics(
         ),  # ttfts is empty if streaming is not supported by backend
         median_ttft_ms=float(np.median(ttfts or 0) * 1000),
         p90_ttft_ms=float(np.percentile(ttfts or 0, 90) * 1000),
+        p95_ttft_ms=float(np.percentile(ttfts or 0, 95) * 1000),
         p99_ttft_ms=float(np.percentile(ttfts or 0, 99) * 1000),
         mean_tpot_ms=float(np.mean(tpots) * 1000),
         median_tpot_ms=float(np.median(tpots) * 1000),
         p90_tpot_ms=float(np.percentile(tpots, 90) * 1000),
+        p95_tpot_ms=float(np.percentile(tpots, 95) * 1000),
         p99_tpot_ms=float(np.percentile(tpots, 99) * 1000),
     )
 
@@ -307,67 +311,37 @@ async def benchmark(
 
     print(
         "\033[1mRequest Details: \033[0m                      \033[4mRequest Prompt Length (toks)\033[0m           "
-        " \033[4mRequest Generation Length (toks)\033[0m"
-    )
+        " \033[4mRequest Generation Length (toks)\033[0m")
     print(
-        f"RPS = 5.0                              Mean:                                   Mean: "
-    )
+        f"RPS = 5.0                              Mean:                                   Mean: ")
     print(
-        f"Hourly Active Users: 1000              p50:                                    p50:"
-    )
+        f"Hourly Active Users: 1000              p50:                                    p50:")
     print(
-        f"Total Requests: 100                    p90:                                    p90:"
-    )
+        f"Total Requests: 100                    p90:                                    p90:")
     print(
-        f"Completed Requests: 100                p95:                                    p95:"
-    )
+        f"Completed Requests: 100                p95:                                    p95:")
     print(
-        f"Successfully Requests: 100             p99:                                    p99:"
-    )
+        f"Successfully Requests: 100             p99:                                    p99:")
     print(f"Failed Requests: 100 \n")
 
     print("\033[1mSummary Workload Metrics: \033[0m \n")
+    print("\033[4mE2E Latency (s)\033[0m     \033[4mThroughput (toks/s)\033[0m "
+          "  \033[4mTime To First Token (TTFT) (ms)\033[0m     \033[4mTime Per Output Token (TPOT) (ms)\033[0m")
     print(
-        "\033[4mE2E Latency (s)\033[0m     \033[4mThroughput (toks/s)\033[0m "
-        "  \033[4mTime To First Token (TTFT) (ms)\033[0m     \033[4mTime Per Output Token (TPOT) (ms)\033[0m"
-    )
+        f"Mean:               Mean: {metrics.output_throughput}                Mean: {metrics.mean_ttft_ms}                              Mean: {metrics.mean_tpot_ms}")
     print(
-        f"Mean:               Mean:                 Mean:                               Mean:"
-    )
+        f"p50:                                      p50: {metrics.median_ttft_ms}                               p50: {metrics.median_tpot_ms}")
     print(
-        f"p50:                p50:                  p50:                                p50:"
-    )
+        f"p90:                                      p90: {metrics.p90_ttft_ms}                               p90: {metrics.p90_tpot_ms}")
     print(
-        f"p90:                                      p90:                                p90:"
-    )
+        f"p95:                                      p95: {metrics.p95_ttft_ms}                               p95: {metrics.p95_tpot_ms}")
     print(
-        f"p95:                                      p95:                                p95:"
-    )
-    print(
-        f"p99:                                      p99:                                p99:"
-    )
+        f"p99:                                      p99: {metrics.p99_ttft_ms}                                p99:  {metrics.p99_tpot_ms}")
 
-    print(
-        "\n \033[1mTo further inspect the metrics from this workload, you may view "
-        "the generated .csv files in the Workload_Output local directory.\033[0m"
-    )
+    print("\n \033[1mTo further inspect the metrics from this workload, you may view "
+          "the generated .csv files in the Workload_Output local directory.\033[0m")
 
-    print(
-        f"Time to First Token (TTFT) - "
-        f"mean: {metrics.mean_ttft_ms}, "
-        f"p50: {metrics.median_ttft_ms}, "
-        f"p90: {metrics.p90_ttft_ms}, "
-        f"p99: {metrics.p99_ttft_ms}"
-    )
-    print(
-        f"Time Per Output Token (TPOT) - "
-        f"mean: {metrics.mean_tpot_ms}, "
-        f"p50 : {metrics.median_tpot_ms}, "
-        f"p90: {metrics.p90_tpot_ms}, "
-        f"p99: {metrics.p99_tpot_ms}"
-    )
     print(f"E2E Latency:  {[output.processing_time for output in outputs]}")
-    print(f"Throughput: {metrics.output_throughput}")
     print(f"Request Prompt Length - {[output.prompt_len for output in outputs]}")
     print(f"Request Generation Length - {actual_output_lens}")
     print("=" * 50)
@@ -383,10 +357,12 @@ async def benchmark(
         "mean_ttft_ms": metrics.mean_ttft_ms,
         "median_ttft_ms": metrics.median_ttft_ms,
         "p90_ttft_ms": metrics.p90_ttft_ms,
+        "p95_ttft_ms": metrics.p95_ttft_ms,
         "p99_ttft_ms": metrics.p99_ttft_ms,
         "mean_tpot_ms": metrics.mean_tpot_ms,
         "median_tpot_ms": metrics.median_tpot_ms,
         "p90_tpot_ms": metrics.p90_tpot_ms,
+        "p95_tpot_ms": metrics.p95_tpot_ms,
         "p99_tpot_ms": metrics.p99_tpot_ms,
         "input_lens": [output.prompt_len for output in outputs],
         "output_lens": actual_output_lens,
