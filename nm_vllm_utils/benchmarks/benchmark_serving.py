@@ -35,7 +35,7 @@ from typing import AsyncGenerator, Dict, List, Tuple
 import numpy as np
 from tqdm.asyncio import tqdm
 from transformers import PreTrainedTokenizerBase  # type: ignore[import-untyped]
-from vllm.transformers_utils.tokenizer import (  # type: ignore[import-not-found]
+from vllm.transformers_utils.tokenizer import (
     get_tokenizer,
 )
 
