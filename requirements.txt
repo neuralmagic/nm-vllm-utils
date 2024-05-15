@@ -84,7 +84,7 @@ nvidia-nvjitlink-cu12==12.4.127
 nvidia-nvtx-cu12==12.1.105
 openai==1.28.1
 orjson==3.10.3
-outlines==0.0.35
+outlines==0.0.34
 packaging==24.0
 pathspec==0.12.1
 pep8-naming==0.13.2
