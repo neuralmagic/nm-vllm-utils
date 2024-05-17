@@ -525,7 +525,7 @@ def main(args: argparse.Namespace) -> None:
         # Merge with benchmark result
         result_json = {**result_json, **benchmark_result}
 
-        # Save to file
+        # Save to csv file
         base_model_id = model_id.split("/")[-1]
         file_name = (
             f"{backend}-{args.request_rate}qps-{base_model_id}-{current_dt}.csv"  # noqa
@@ -536,6 +536,14 @@ def main(args: argparse.Namespace) -> None:
             writer = csv.DictWriter(outfile, fieldnames=result_json.keys())
             writer.writeheader()
             writer.writerow(result_json)
+
+        # Save to file
+        base_model_id = model_id.split("/")[-1]
+        file_name = f"{backend}-{args.request_rate}qps-{base_model_id}-{current_dt}.json"  # noqa
+        if args.result_dir:
+            file_name = os.path.join(args.result_dir, file_name)
+        with open(file_name, "w") as outfile:
+            json.dump(result_json, outfile)
 
 
 if __name__ == "__main__":
