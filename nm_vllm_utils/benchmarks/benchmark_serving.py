@@ -332,6 +332,49 @@ async def benchmark(
     )
 
     request_details = [
+        [
+            {"text": "Request Details:", "format": "\033[1m* \033[0m"},
+            {"text": "Request Prompt Length (toks)", "format": "\033[4m*\033[0m"},
+            {"text": "Request Generation Length (toks)", "format": "\033[4m*\033[0m"},
+            {"text": "", "format": ""},
+        ],
+        [
+            {"text": f"RPS = {len(outputs)/benchmark_duration}", "format": "*"},
+            {"text": f"Mean: {mean_request_prompt_length}", "format": "*"},
+            {"text": f"Mean: {mean_request_generation_length}", "format": "*"},
+            {"text": f"", "format": "*"},
+        ],
+        [
+            {"text": f"Hourly Active Users: {args.hourly_users}", "format": "*"},
+            {"text": f"p50: {median_request_prompt}", "format": "*"},
+            {"text": f"p50: {median_request_generation}", "format": "*"},
+            {"text": f"", "format": "*"},
+        ],
+        [
+            {"text": f"", "format": "*"},
+            {"text": f"", "format": "*"},
+            {"text": f"", "format": "*"},
+            {"text": f"", "format": "*"},
+        ],
+
+    ]
+
+    column_widths = [
+        max(len(item["text"]) for item in col) for col in zip(*request_details)
+    ]
+
+    for row in request_details:
+        for item, width in zip(row, column_widths):
+            param_value = item.get("format")
+            if "*" not in param_value:
+                param_value = item.get("text", "")
+            if "*" == param_value:
+                width -= 8
+            print(param_value.replace("*", item.get("text", "")).ljust(width + 20),
+                  end='')
+        print()
+
+    request_details = [
         ["\033[1mRequest Details: \033[0m", "\033[4mRequest Prompt Length (toks)\033[0m", "\033[4mRequest Generation Length (toks)\033[0m", ""],
         [f"RPS = {len(outputs)/benchmark_duration}", f"Mean: {mean_request_prompt_length}", f"Mean: {mean_request_generation_length}", ""],
         [f"Hourly Active Users: {args.hourly_users}", f"p50: {median_request_prompt}", f"p50: {median_request_generation}", ""],
