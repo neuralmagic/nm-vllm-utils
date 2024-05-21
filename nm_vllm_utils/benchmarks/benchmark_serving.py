@@ -351,10 +351,76 @@ async def benchmark(
             {"text": f"", "format": "*"},
         ],
         [
+            {"text": f"Total Requests: {len(outputs)}", "format": "*"},
+            {"text": f"p90: {p90_request_prompt}", "format": "*"},
+            {"text": f"p90: {p90_request_generation}", "format": "*"},
+            {"text": f"", "format": "*"},
+        ],
+        [
+            {"text": f"Completed Requests: {metrics.completed}", "format": "*"},
+            {"text": f"p95: {p95_request_prompt}", "format": "*"},
+            {"text": f"p95: {p95_request_generation}", "format": "*"},
+            {"text": f"", "format": "*"},
+        ],
+        [
+            {"text": f"Successfully Requests: {metrics.completed}", "format": "*"},
+            {"text": f"p99: {p99_request_prompt}", "format": "*"},
+            {"text": f"p99: {p99_request_generation}", "format": "*"},
+            {"text": f"", "format": "*"},
+        ],
+        [
+            {"text": f"Failed Requests: {len(outputs) - metrics.completed}", "format": "*"},
+            {"text": f"", "format": "*"},
+            {"text": f"", "format": "*"},
+            {"text": f"", "format": "*"},
+        ],
+        [
             {"text": f"", "format": "*"},
             {"text": f"", "format": "*"},
             {"text": f"", "format": "*"},
             {"text": f"", "format": "*"},
+        ],
+        [
+            {"text": f"Summary Workload Metrics:", "format": "\033[1m*\033[0m"},
+            {"text": f"", "format": "*"},
+            {"text": f"", "format": "*"},
+            {"text": f"", "format": "*"},
+        ],
+        [
+            {"text": f"E2E Latency (s)", "format": "\033[4m*\033[0m"},
+            {"text": f"Throughput (toks/s)", "format": "\033[4m*\033[0m"},
+            {"text": f"Time To First Token (TTFT) (ms)", "format": "\033[4m*\033[0m"},
+            {"text": f"Time Per Output Token (TPOT) (ms)", "format": "\033[4m*\033[0m"},
+        ],
+        [
+            {"text": f"Mean: {mean_e2e_latency}", "format": "*"},
+            {"text": f"Mean: {metrics.output_throughput}", "format": "*"},
+            {"text": f"Mean: {metrics.mean_ttft_ms}", "format": "*"},
+            {"text": f"Mean: {metrics.mean_tpot_ms}", "format": "*"},
+        ],
+        [
+            {"text": f"p50: {median_e2e_latency}", "format": "*"},
+            {"text": f"", "format": "*"},
+            {"text": f"p50: {metrics.median_ttft_ms}", "format": "*"},
+            {"text": f"p50: {metrics.median_tpot_ms}", "format": "*"},
+        ],
+        [
+            {"text": f"p90: {p90_e2e_latency}", "format": "*"},
+            {"text": f"", "format": "*"},
+            {"text": f"p90: {metrics.p90_ttft_ms}", "format": "*"},
+            {"text": f"p90: {metrics.p90_tpot_ms}", "format": "*"},
+        ],
+        [
+            {"text": f"p95: {p95_e2e_latency}", "format": "*"},
+            {"text": f"", "format": "*"},
+            {"text": f"p95: {metrics.p95_ttft_ms}", "format": "*"},
+            {"text": f"p95: {metrics.p95_tpot_ms}", "format": "*"},
+        ],
+        [
+            {"text": f"p99: {p99_e2e_latency}", "format": "*"},
+            {"text": f"", "format": "*"},
+            {"text": f"p99: {metrics.p99_ttft_ms}", "format": "*"},
+            {"text": f"p99: {metrics.p99_tpot_ms}", "format": "*"},
         ],
 
     ]
@@ -372,34 +438,6 @@ async def benchmark(
                 width -= 8
             print(param_value.replace("*", item.get("text", "")).ljust(width + 20),
                   end='')
-        print()
-
-    request_details = [
-        ["\033[1mRequest Details: \033[0m", "\033[4mRequest Prompt Length (toks)\033[0m", "\033[4mRequest Generation Length (toks)\033[0m", ""],
-        [f"RPS = {len(outputs)/benchmark_duration}", f"Mean: {mean_request_prompt_length}", f"Mean: {mean_request_generation_length}", ""],
-        [f"Hourly Active Users: {args.hourly_users}", f"p50: {median_request_prompt}", f"p50: {median_request_generation}", ""],
-        [f"Total Requests: {len(outputs)}", f"p90: {p90_request_prompt}", f"p90: {p90_request_generation}", ""],
-        [f"Completed Requests: {metrics.completed}", f"p95: {p95_request_prompt}", f"p95: {p95_request_generation}", ""],
-        [f"Successfully Requests: {metrics.completed}", f"p99: {p99_request_prompt}", f"p99: {p99_request_generation}", f""],
-        [f"Failed Requests: {len(outputs) - metrics.completed}", f"", f"", f""],
-        [f"", f"", f"", f""],
-        [f"\033[1mSummary Workload Metrics: \033[0m", f"", f"", f""],
-        [f"", f"", f"", f""],
-        [f"\033[4mE2E Latency (s)\033[0m", f"\033[4mThroughput (toks/s)\033[0m", f"\033[4mTime To First Token (TTFT) (ms)\033[0m", f"\033[4mTime Per Output Token (TPOT) (ms)\033[0m"],
-        [f"Mean: {mean_e2e_latency}", f"Mean: {metrics.output_throughput}", f"Mean: {metrics.mean_ttft_ms}", f"Mean: {metrics.mean_tpot_ms}"],
-        [f"p50: {median_e2e_latency}", f"", f"p50: {metrics.median_ttft_ms}", f"p50: {metrics.median_tpot_ms}"],
-        [f"p90: {p90_e2e_latency}", f"", f"p90: {metrics.p90_ttft_ms}", f"p90: {metrics.p90_tpot_ms}"],
-        [f"p95: {p95_e2e_latency}", f"", f"p95: {metrics.p95_ttft_ms}", f"p95: {metrics.p95_tpot_ms}"],
-        [f"p99: {p99_e2e_latency}", f"", f"p99: {metrics.p99_ttft_ms}", f"p99:  {metrics.p99_tpot_ms}"],
-    ]
-
-    column_widths = [
-        max(len(str(item)) for item in column) for column in zip(*request_details)
-    ]
-
-    for row in request_details:
-        for item, width in zip(row, column_widths):
-            print(item.ljust(width + 15), end='')
         print()
 
     print(
