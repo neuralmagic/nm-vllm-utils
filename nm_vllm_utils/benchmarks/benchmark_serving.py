@@ -440,7 +440,7 @@ async def benchmark(
 
     for row in request_details:
         for item, width in zip(row, column_widths):
-            param_value = item.get("format")
+            param_value = item.get("format", "*")
             if "*" not in param_value:
                 param_value = item.get("text", "")
             if "*" == param_value:
