@@ -372,7 +372,10 @@ async def benchmark(
             {"text": f"", "format": "*"},
         ],
         [
-            {"text": f"Failed Requests: {len(outputs) - metrics.completed}", "format": "*"},
+            {
+                "text": f"Failed Requests: {len(outputs) - metrics.completed}",
+                "format": "*",
+            },
             {"text": f"", "format": "*"},
             {"text": f"", "format": "*"},
             {"text": f"", "format": "*"},
@@ -431,7 +434,6 @@ async def benchmark(
             {"text": f"p99: {metrics.p99_ttft_ms}", "format": "*"},
             {"text": f"p99: {metrics.p99_tpot_ms}", "format": "*"},
         ],
-
     ]
 
     column_widths = [
@@ -445,8 +447,9 @@ async def benchmark(
                 param_value = item.get("text", "")
             if "*" == param_value:
                 width -= 8
-            print(param_value.replace("*", item.get("text", "")).ljust(width + 20),
-                  end='')
+            print(
+                param_value.replace("*", item.get("text", "")).ljust(width + 20), end=""
+            )
         print()
 
     print(
