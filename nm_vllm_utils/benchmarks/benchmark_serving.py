@@ -356,7 +356,7 @@ async def benchmark(
 
     for row in request_details:
         for item, width in zip(row, column_widths):
-            print(item.ljust(width + 4), end='')
+            print(item.ljust(width + 30), end='')
         print()
 
     print(
