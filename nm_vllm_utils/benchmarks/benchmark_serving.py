@@ -387,6 +387,12 @@ async def benchmark(
             {"text": f"", "format": "*"},
         ],
         [
+            {"text": f"", "format": "*"},
+            {"text": f"", "format": "*"},
+            {"text": f"", "format": "*"},
+            {"text": f"", "format": "*"},
+        ],
+        [
             {"text": f"E2E Latency (s)", "format": "\033[4m*\033[0m"},
             {"text": f"Throughput (toks/s)", "format": "\033[4m*\033[0m"},
             {"text": f"Time To First Token (TTFT) (ms)", "format": "\033[4m*\033[0m"},
