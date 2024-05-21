@@ -26,6 +26,7 @@ import csv
 import json
 import os
 import random
+import socket
 import time
 import warnings
 from dataclasses import dataclass
@@ -322,9 +323,11 @@ async def benchmark(
     p95_e2e_latency = float(np.percentile(e2e_latency or 0, 95) * 1000)
     p99_e2e_latency = float(np.percentile(e2e_latency or 0, 99) * 1000)
 
+    ip_address = socket.gethostbyname(socket.gethostname())
+
     print("\033[1mWorkload report: \033[0m \n")
     print(
-        f"\033[1mServer details: \033[0m Host URL: \033[4m{args.host}\033[0m  Port: {args.port} IP Address: Route: {args.endpoint} Request Payload Template: Benchmark Duration (s): {benchmark_duration}"
+        f"\033[1mServer details: \033[0m Host URL: \033[4m{args.host}\033[0m  Port: {args.port} IP Address: {ip_address} Route: {args.endpoint} Request Payload Template: Benchmark Duration (s): {benchmark_duration}"
     )
     print(f"\033[1mModel details: \033[0m Name: {args.model}")
     print(
