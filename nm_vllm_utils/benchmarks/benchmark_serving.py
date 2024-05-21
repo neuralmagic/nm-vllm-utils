@@ -333,7 +333,7 @@ async def benchmark(
 
     request_details = [
         ["\033[1mRequest Details: \033[0m", "\033[4mRequest Prompt Length (toks)\033[0m", "\033[4mRequest Generation Length (toks)\033[0m", ""],
-        [f"RPS = {len(outputs)/benchmark_duration}", f"Mean: {mean_request_prompt_length}", "Mean: {mean_request_generation_length}", ""],
+        [f"RPS = {len(outputs)/benchmark_duration}", f"Mean: {mean_request_prompt_length}", f"Mean: {mean_request_generation_length}", ""],
         [f"Hourly Active Users: {args.hourly_users}", f"p50: {median_request_prompt}", f"p50: {median_request_generation}", ""],
         [f"Total Requests: {len(outputs)}", f"p90: {p90_request_prompt}", f"p90: {p90_request_generation}", ""],
         [f"Completed Requests: {metrics.completed}", f"p95: {p95_request_prompt}", f"p95: {p95_request_generation}", ""],
@@ -341,6 +341,7 @@ async def benchmark(
         [f"Failed Requests: {len(outputs) - metrics.completed}", f"", f"", f""],
         [f"", f"", f"", f""],
         [f"\033[1mSummary Workload Metrics: \033[0m", f"", f"", f""],
+        [f"", f"", f"", f""],
         [f"\033[4mE2E Latency (s)\033[0m", f"\033[4mThroughput (toks/s)\033[0m", f"\033[4mTime To First Token (TTFT) (ms)\033[0m", f"\033[4mTime Per Output Token (TPOT) (ms)\033[0m"],
         [f"Mean: {mean_e2e_latency}", f"Mean: {metrics.output_throughput}", f"Mean: {metrics.mean_ttft_ms}", f"Mean: {metrics.mean_tpot_ms}"],
         [f"p50: {median_e2e_latency}", f"", f"p50: {metrics.median_ttft_ms}", f"p50: {metrics.median_tpot_ms}"],
