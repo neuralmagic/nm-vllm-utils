@@ -611,9 +611,14 @@ def main(args: argparse.Namespace) -> None:
         )
         if args.result_dir:
             file_name = os.path.join(args.result_dir, file_name)
-        with open(file_name, "w", newline="") as outfile:
+
+        if not os.path.exists(file_name):
+            with open(file_name, "w", newline="") as outfile:
+                writer = csv.DictWriter(outfile, fieldnames=result_json.keys())
+                writer.writeheader()
+
+        with open(file_name, "a", newline="") as outfile:
             writer = csv.DictWriter(outfile, fieldnames=result_json.keys())
-            writer.writeheader()
             writer.writerow(result_json)
 
         # Save to file
