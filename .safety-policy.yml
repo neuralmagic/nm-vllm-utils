@@ -4,3 +4,6 @@ security:
     66040:
       expires: '2024-07-01'
       reason: VLLM has a strict dependency on outlines==0.0.34 blocking us from upgrading to 0.0.35
+    70485:
+      expires: '2024-07-01'
+      reason: Inability to upgrade to version 2.11.0 due to the required Python version.
