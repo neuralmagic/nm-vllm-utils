@@ -626,8 +626,17 @@ def main(args: argparse.Namespace) -> None:
         file_name = f"{backend}-{args.request_rate}qps-{base_model_id}-{current_dt}.json"  # noqa
         if args.result_dir:
             file_name = os.path.join(args.result_dir, file_name)
-        with open(file_name, "w") as outfile:
-            json.dump(result_json, outfile)
+
+        if os.path.isfile(file_name):
+            with open(file_name, "r+") as outfile:
+                outfile.seek(0, os.SEEK_END)
+                pos = outfile.tell()
+                if pos > 0:
+                    outfile.write(", ")
+                json.dump(result_json, outfile)
+        else:
+            with open(file_name, "w") as outfile:
+                json.dump(result_json, outfile)
 
 
 if __name__ == "__main__":
