@@ -606,9 +606,7 @@ def main(args: argparse.Namespace) -> None:
 
         # Save to csv file
         base_model_id = model_id.split("/")[-1]
-        file_name = (
-            f"{backend}-qps-{base_model_id}.csv"  # noqa
-        )
+        file_name = f"{backend}-qps-{base_model_id}.csv"  # noqa
         if args.result_dir:
             file_name = os.path.join(args.result_dir, file_name)
 
