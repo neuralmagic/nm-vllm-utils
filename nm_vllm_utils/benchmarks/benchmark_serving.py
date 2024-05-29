@@ -621,23 +621,6 @@ def main(args: argparse.Namespace) -> None:
             writer = csv.DictWriter(outfile, fieldnames=result_json.keys())
             writer.writerow(result_json)
 
-        # Save to file
-        base_model_id = model_id.split("/")[-1]
-        file_name = f"{backend}-qps-{base_model_id}.json"  # noqa
-        if args.result_dir:
-            file_name = os.path.join(args.result_dir, file_name)
-
-        if os.path.isfile(file_name):
-            with open(file_name, "r+") as outfile:
-                outfile.seek(0, os.SEEK_END)
-                pos = outfile.tell()
-                if pos > 0:
-                    outfile.write(", ")
-                json.dump(result_json, outfile)
-        else:
-            with open(file_name, "w") as outfile:
-                json.dump(result_json, outfile)
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
