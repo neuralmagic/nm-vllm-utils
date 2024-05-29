@@ -392,8 +392,10 @@ def get_model_id(openai_api_base: str):
         api_key=os.environ.get("OPENAI_API_KEY"),
         base_url=openai_api_base,
     )
+    print("client", client)
 
     models = client.models.list()
+    print("models", models)
     return models.data[0].id
 
 
