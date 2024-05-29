@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 import aiohttp
+from openai import OpenAI
 from tqdm.asyncio import tqdm
 
 
@@ -384,6 +385,16 @@ def remove_prefix(text: str, prefix: str) -> str:
     if text.startswith(prefix):
         return text[len(prefix) :]
     return text
+
+
+def get_model_id(openai_api_base: str):
+    client = OpenAI(
+        api_key=os.environ.get("OPENAI_API_KEY"),
+        base_url=openai_api_base,
+    )
+
+    models = client.models.list()
+    return models.data[0].id
 
 
 ASYNC_REQUEST_FUNCS = {

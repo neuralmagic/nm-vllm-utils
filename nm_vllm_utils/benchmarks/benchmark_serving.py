@@ -42,6 +42,7 @@ from nm_vllm_utils.benchmarks.backend_request_func import (
     ASYNC_REQUEST_FUNCS,
     RequestFuncInput,
     RequestFuncOutput,
+    get_model_id,
 )
 
 
@@ -498,6 +499,8 @@ def main(args: argparse.Namespace) -> None:
         api_url = f"{args.base_url}{args.endpoint}"
     else:
         api_url = f"http://{args.host}:{args.port}{args.endpoint}"
+
+    print("get_model_id = ", get_model_id(api_url))
 
     tokenizer = get_tokenizer(tokenizer_id, trust_remote_code=args.trust_remote_code)
 
