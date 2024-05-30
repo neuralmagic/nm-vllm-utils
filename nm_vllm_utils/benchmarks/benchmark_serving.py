@@ -329,7 +329,7 @@ async def benchmark(
     print(
         f"\033[1mServer details: \033[0m Host URL: \033[4m{args.host}\033[0m  Port: {args.port} IP Address: {ip_address} Route: {args.endpoint} Request Payload Template: Benchmark Duration (s): {benchmark_duration}"
     )
-    print(f"\033[1mModel details: \033[0m Name: {args.model}")
+    print(f"\033[1mModel details: \033[0m Name: {model_id}")
     print(
         f"\033[1mTask details: \033[0m Dataset: {args.dataset} Task: {args.task} Median Prefill Time {metrics.median_ttft_ms} (ms) Median Decode Time {metrics.median_tpot_ms} (ms) \n"
     )
@@ -492,7 +492,7 @@ def main(args: argparse.Namespace) -> None:
 
     backend = args.backend
     model_id = get_model_id()
-    tokenizer_id = args.tokenizer if args.tokenizer is not None else args.model
+    tokenizer_id = args.tokenizer if args.tokenizer is not None else model_id
 
     if args.base_url is not None:
         api_url = f"{args.base_url}{args.endpoint}"
