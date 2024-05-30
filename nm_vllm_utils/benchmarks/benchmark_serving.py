@@ -5,16 +5,15 @@
 On the server side, run one of the following commands:
     vLLM OpenAI API server
     python -m vllm.entrypoints.openai.api_server \
-        --model <your_model> --swap-space 16 \
+        --swap-space 16 \
         --disable-log-requests
 
     (TGI backend)
-    ./launch_tgi_server.sh <your_model> <max_batch_total_tokens>
+    ./launch_tgi_server.sh <max_batch_total_tokens>
 
 On the client side, run:
     python benchmarks/benchmark_serving.py \
         --backend <backend> \
-        --model <your_model> \
         --dataset-name sharegpt \
         --dataset-path <path to dataset> \
         --request-rate <request_rate> \ # By default <request_rate> is inf
@@ -492,15 +491,13 @@ def main(args: argparse.Namespace) -> None:
     np.random.seed(args.seed)
 
     backend = args.backend
-    model_id = args.model
+    model_id = get_model_id()
     tokenizer_id = args.tokenizer if args.tokenizer is not None else args.model
 
     if args.base_url is not None:
         api_url = f"{args.base_url}{args.endpoint}"
     else:
         api_url = f"http://{args.host}:{args.port}{args.endpoint}"
-
-    print("get_model_id = ", get_model_id())
 
     tokenizer = get_tokenizer(tokenizer_id, trust_remote_code=args.trust_remote_code)
 
@@ -662,12 +659,6 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--dataset-path", type=str, default=None, help="Path to the dataset."
-    )
-    parser.add_argument(
-        "--model",
-        type=str,
-        required=True,
-        help="Name of the model.",
     )
     parser.add_argument(
         "--tokenizer",
