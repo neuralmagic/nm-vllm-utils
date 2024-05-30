@@ -387,15 +387,12 @@ def remove_prefix(text: str, prefix: str) -> str:
     return text
 
 
-def get_model_id(openai_api_base: str):
+def get_model_id(openai_api_base: str) -> str:
     client = OpenAI(
         api_key=os.environ.get("OPENAI_API_KEY"),
         base_url=openai_api_base,
     )
-    print("client", client)
-
     models = client.models.list()
-    print("models", models)
     return models.data[0].id
 
 
