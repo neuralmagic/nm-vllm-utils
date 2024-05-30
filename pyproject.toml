@@ -9,9 +9,15 @@ build-backend = "setuptools.build_meta"
 authors = [
   {email = "support@neuralmagic.com", name = "Neuralmagic, Inc."},
 ]
-dependencies = []
 description = "Various utilities for use with nm-vllm"
 dynamic = ["version"]
+dependencies = [
+  "aiohttp~=3.9.5",
+  "numpy~=1.24.4",
+  "transformers~=4.40.1",
+  "typing-extensions~=4.11.0",
+  "vllm~=0.4.2",
+]
 license = {text = "Apache"}
 name = "nm-vllm-utils"
 readme = "README.md"
@@ -40,6 +46,7 @@ dev = [
   "pytest~=8.1.1",
   "removestar~=1.3.1",
   "safety==2.3.4",
+  "types-tqdm~=4.66",
   "wheel>=0.36.2",
 ]
 
@@ -93,7 +100,12 @@ addopts = "-m 'not integration_test'"
 markers = ["integration_test: marks tests as integration tests (deselect with '-m \"not integration_test\")"]
 
 [tool.setuptools.packages.find]
-where = ["nm_vllm_utils"]
+include = [
+  "nm_vllm_utils",
+  "nm_vllm_utils.benchmarks",
+]
+where = ["."]
+
 
 [tool.setuptools_scm]
 version_file = "nm_vllm_utils/__version__.py"
