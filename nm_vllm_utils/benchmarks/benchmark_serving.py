@@ -500,7 +500,7 @@ def main(args: argparse.Namespace) -> None:
     else:
         api_url = f"http://{args.host}:{args.port}{args.endpoint}"
 
-    print("get_model_id = ", get_model_id(api_url))
+    print("get_model_id = ", get_model_id())
 
     tokenizer = get_tokenizer(tokenizer_id, trust_remote_code=args.trust_remote_code)
 
