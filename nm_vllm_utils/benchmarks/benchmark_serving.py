@@ -698,6 +698,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--request-rate",
+        nargs='+',
         type=float,
         default=float("inf"),
         help="Number of requests per second. If this is inf, "
