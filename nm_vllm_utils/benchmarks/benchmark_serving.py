@@ -748,6 +748,7 @@ if __name__ == "__main__":
         "--task",
         type=str,
         default=None,
+        nargs='+',
         choices=["chat", "rag", "summarization"],
         help="Specify the task type. If provided, a premade dataset relevant "
         "to the task will be pulled in.",
