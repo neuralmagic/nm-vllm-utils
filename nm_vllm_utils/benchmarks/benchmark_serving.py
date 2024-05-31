@@ -556,6 +556,8 @@ def main(args: argparse.Namespace) -> None:
     else:
         raise ValueError(f"Unknown dataset: {args.dataset_name}")
 
+    print("args.request_rate = ", args.request_rate)
+
     benchmark_result = asyncio.run(
         benchmark(
             args=args,
