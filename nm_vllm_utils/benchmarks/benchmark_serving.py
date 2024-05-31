@@ -556,68 +556,69 @@ def main(args: argparse.Namespace) -> None:
     else:
         raise ValueError(f"Unknown dataset: {args.dataset_name}")
 
-    benchmark_result = asyncio.run(
-        benchmark(
-            args=args,
-            backend=backend,
-            api_url=api_url,
-            model_id=model_id,
-            tokenizer=tokenizer,
-            input_requests=input_requests,
-            best_of=args.best_of,
-            use_beam_search=args.use_beam_search,
-            request_rate=args.request_rate,
-            disable_tqdm=args.disable_tqdm,
-        )
-    )
-
-    # Save config and results to json
-    if args.save_result:
-        result_json = {}
-
-        # Setup
-        current_dt = datetime.now().strftime("%Y%m%d-%H%M%S")
-        result_json["date"] = current_dt
-        result_json["backend"] = backend
-        result_json["model_id"] = model_id
-        result_json["tokenizer_id"] = tokenizer_id
-        result_json["best_of"] = args.best_of
-        result_json["use_beam_search"] = args.use_beam_search
-        result_json["num_prompts"] = args.num_prompts
-
-        # Metadata
-        if args.metadata:
-            for item in args.metadata:
-                if "=" in item:
-                    kvstring = item.split("=")
-                    result_json[kvstring[0].strip()] = kvstring[1].strip()
-                else:
-                    raise ValueError(
-                        "Invalid metadata format. Please use KEY=VALUE format."
-                    )
-
-        # Traffic
-        result_json["request_rate"] = (
-            args.request_rate if args.request_rate < float("inf") else "inf"
+    for request_rate in args.request_rate:
+        benchmark_result = asyncio.run(
+            benchmark(
+                args=args,
+                backend=backend,
+                api_url=api_url,
+                model_id=model_id,
+                tokenizer=tokenizer,
+                input_requests=input_requests,
+                best_of=args.best_of,
+                use_beam_search=args.use_beam_search,
+                request_rate=request_rate,
+                disable_tqdm=args.disable_tqdm,
+            )
         )
 
-        # Merge with benchmark result
-        result_json = {**result_json, **benchmark_result}
+        # Save config and results to json
+        if args.save_result:
+            result_json = {}
 
-        # Save to csv file
-        base_model_id = model_id.split("/")[-1]
-        file_name = f"{backend}-qps-{base_model_id}.csv"  # noqa
-        if args.result_dir:
-            file_name = os.path.join(args.result_dir, file_name)
+            # Setup
+            current_dt = datetime.now().strftime("%Y%m%d-%H%M%S")
+            result_json["date"] = current_dt
+            result_json["backend"] = backend
+            result_json["model_id"] = model_id
+            result_json["tokenizer_id"] = tokenizer_id
+            result_json["best_of"] = args.best_of
+            result_json["use_beam_search"] = args.use_beam_search
+            result_json["num_prompts"] = args.num_prompts
 
-        if not os.path.exists(file_name):
-            with open(file_name, "w", newline="") as outfile:
+            # Metadata
+            if args.metadata:
+                for item in args.metadata:
+                    if "=" in item:
+                        kvstring = item.split("=")
+                        result_json[kvstring[0].strip()] = kvstring[1].strip()
+                    else:
+                        raise ValueError(
+                            "Invalid metadata format. Please use KEY=VALUE format."
+                        )
+
+            # Traffic
+            result_json["request_rate"] = (
+                request_rate if request_rate < float("inf") else "inf"
+            )
+
+            # Merge with benchmark result
+            result_json = {**result_json, **benchmark_result}
+
+            # Save to csv file
+            base_model_id = model_id.split("/")[-1]
+            file_name = f"{backend}-qps-{base_model_id}.csv"  # noqa
+            if args.result_dir:
+                file_name = os.path.join(args.result_dir, file_name)
+
+            if not os.path.exists(file_name):
+                with open(file_name, "w", newline="") as outfile:
+                    writer = csv.DictWriter(outfile, fieldnames=result_json.keys())
+                    writer.writeheader()
+
+            with open(file_name, "a", newline="") as outfile:
                 writer = csv.DictWriter(outfile, fieldnames=result_json.keys())
-                writer.writeheader()
-
-        with open(file_name, "a", newline="") as outfile:
-            writer = csv.DictWriter(outfile, fieldnames=result_json.keys())
-            writer.writerow(result_json)
+                writer.writerow(result_json)
 
 
 if __name__ == "__main__":
@@ -698,6 +699,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--request-rate",
+        nargs='+',
         type=float,
         default=float("inf"),
         help="Number of requests per second. If this is inf, "
@@ -746,6 +748,7 @@ if __name__ == "__main__":
         "--task",
         type=str,
         default=None,
+        nargs='+',
         choices=["chat", "rag", "summarization"],
         help="Specify the task type. If provided, a premade dataset relevant "
         "to the task will be pulled in.",
